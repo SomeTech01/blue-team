@@ -1,0 +1,17 @@
+yara 
+loki
+1) go to file location
+2) run python /path/to/loki.py -p .
+3) read the logs
+4) nano the file if you want further info ( file 2 is undetected by loki)
+	strings <file name> | wc -l ( to see how many lines in the code)
+yaraGen
+To use yarGen to generate a Yara rule for file 2, you can run the following command:
+
+python3 yarGen.py -m /home/cmnatic/suspicious-files/file2 --excludegood -o /home/cmnatic/suspicious-files/file2.yar 
+
+A brief explanation of the parameters above:
+
+-m is the path to the files you want to generate rules for
+--excludegood force to exclude all goodware strings (these are strings found in legitimate software and can increase false positives)
+-o location & name you want to output the Yara rule

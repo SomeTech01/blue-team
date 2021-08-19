@@ -1,0 +1,27 @@
+ISAC
+terminologies
+
+APT is an acronym for Advanced Persistent Threat. could be a group or nation.
+
+The Tactic is the adversary's goal or objective.
+The Technique is how the adversary achieves the goal or objective.
+The Procedure is how the technique is executed.
+
+TI is an acronym for Threat Intelligence. Threat Intelligence is an overarching term for all collected information on adversaries and TTPs. You will also commonly hear CTI or Cyber Threat Intelligence which is just another way of saying Threat Intelligence. 
+Provides landscape of threats (advesaries and TTP).  
+Used by companies to share info so others wont get hit with the same attack.(ATP's cange TTP's therefore the landscape always changes)
+Threat Intelligence is also broken up into three different types.
+
+Strategic
+	Assist senior management make informed decisions specifically about the security budget and strategies.
+
+Tactical
+	Interacts with the TTPs and attack models to identify adversary attack patterns.
+
+Operational
+	Interact with IOCs and how the adversaries operationalize.
+
+IOCs is an acronym for Indicators of Compromise, the indicators for malware and adversary groups. Indicators can include file hashes, IPs, names, etc.
+
+what is ISAC?
+According to the National Council of ISACs, "Information Sharing and Analysis Centers (ISACs) are member-driven organizations, delivering all-hazards threat and mitigation information to asset owners and operators"

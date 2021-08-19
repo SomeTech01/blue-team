@@ -1,0 +1,109 @@
+event logs
+-records events to provide an audit trail. It can be used to understand the activity of the system and diagnose problems
+-centralized on SIEM's
+
+1)Event viewer
+-resides at C:\Windows\System32\winevt\Logs
+-3 ways of accessing
+	Event Viewer (GUI-based application)
+	Wevtutil.exe (command-line tool)
+	Get-WinEvent (PowerShell cmdlet)
+-divided in to 3 panes: heirarchial tree, summary, and actions
+-5 types of events
+	error -significant problem (data or fx loss)
+	warning -not necessarily significant. may indicate future problem (low disk space)
+	information - succesful operation of an app, driver, or service (network driver loads succesfully) level 4
+	success audit -successful security attepmt (user successful login)
+	dailure audit - failed attempts (user access a netwrok drive and fails)
+
+-windows log type
+	application -event logged by app (db app records a file error)
+	security -valid/invalid logon, creating,openning or deleting files
+	system -logs by system components (failure of a driver) level 0
+	customlog -logs by application that creat custom log 
+
+-	SUMMARY
+	The first column is Level, which is the event type. Recall from earlier there are 5 different event types. This first entry is labeled as Information.
+
+	Next is Date and Time, which is when the event was logged.
+
+	The third column Source is the name of the software that logs the event. From the above image, the source is PowerShell.
+
+	Events are identified by IDs (Event ID), which is the fourth column. Note that Event IDs are not unique. Meaning that Event ID 4103 in the above image is related to Executing Pipeline but will have an entirely different meaning in another event log.
+
+	Lastly is Task Category, which is an Event Category. This entry will help you organize events so Event Viewer can filter them. The event source defines this column.
+
+-action pane
+
+	The Create Custom View and Filter Current Log are nearly identical. 
+	The only difference between the 2 is that the By log and By source radio buttons are grayed out in Filter Current Log. 
+	Reason for that? The filter you can make with this specific action only relates to the current log. Hence no reason for 'by log' or 'by source' to be enabled.
+
+2)wevtutil.exe
+-enables you to retrieve information about event logs and publishers. You can also use this command to install and uninstall event manifests, to run queries, and to export, archive, and clear logs
+-q value is xpath query
+
+commands wevtutil.exe /? (to get syntax)
+	wevtutil.exe qe /? ( to get help for the query-events)
+	wevtutil.exe el | /c /v "" ( to know how many log name are there)
+	wevtutil qe Application /c:3 /rd:true /f:text ( query event, application, max number to read is 3, rd set to true most recent first, file type txt)
+
+3) Get-winevent
+-gets events from event logs and event tracing log files on local and remote computers
+-The Get-WinEvent cmdlet replaces the Get-EventLog cmdlet.
+
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_hash_tables?view=powershell-7.1 (documentation)
+
+https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.diagnostics/Get-WinEvent?view=powershell-7.1 (sample syntax)
+
+command Get-WinEvent -FilterHashtable @{LogName='Microsoft-Windows-PowerShell/Operational'; ID=4104} | Select-Object -Property Message | Select-String -Pattern 'SecureString'
+
+(Get-WinEvent -ListProvider Microsoft-Windows-GroupPolicy).Events | Format-Table Id, Description | measure-object (measure object is a cmdlet to show how many event id's. Like the /c /v "")
+
+
+4) Xpath queries
+
+-select events from channels or logs with severity level less than or equal to 3 in the last 24 hours
+- starts with event or *
+command so far Get-WinEvent -LogName Application -FilterXPath '*'
+-went down to system
+command so far Get-WinEvent -LogName Application -FilterXPath '*/System/'
+-went down to event ID 
+command is Get-WinEvent -LogName Application -FilterXPath '*/System/EventID=100
+
+sample syntax
+
+look for WLMS events with a system time of 2020-12-15T01:09:08.940277500Z
+
+Get-WinEvent -LogName Application -FilterXPath '*/System/Provider[@Name="WLMS"] and */System/TimeCreated[@SystemTime="2020-12-15T01:09:08.940277500Z"]' | fl
+
+to find a user named Sam with an Logon Event ID of 4720
+
+Get-WinEvent -LogName Security -FilterXpath '*/EventData/Data[@Name="TargetUserName"="Sam" and */System/EventID=4720' | fl
+
+5) Event ID's
+
+https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/580595db9f745688bc7477f6/1476761074992/Windows+Logging+Cheat+Sheet_ver_Oct_2016.pdf
+
+6)practical
+
+a)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=400"
+
+to see when the powershell was downgraded. Sign of attack. first date is the first time the attack was conducted
+
+b)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=104" |fl -property *
+
+to see the Log Clear event and get its Event record ID, PC name etc.
+
+c)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=4104' -Oldest -MaxEvents 1 | format-list
+
+advised about event 4104. looking for encoded powershell payload
+
+d)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=104 and */EventData/Data[@Name="ScriptBlockText"]' |fl -property *
+
+the execution process ID is the last one to show. if you put -Oldest it is the first one
+
+e)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=4799" -Oldest -Max Events 1 |fl -property *
+
+Someone is enumerating Admin group. Google search for the eventID (4799). Syntax will say full detail with the first ever log show up to be anlyzed
+

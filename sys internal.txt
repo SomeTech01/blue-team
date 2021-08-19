@@ -1,0 +1,168 @@
+sysinternal tools
+
+online go to https://live.sysinternals.com/ . Tools are listed in alphabetical order.
+
+
+1)files and disk utilities
+
+Sigcheck
+
+"Sigcheck is a command-line utility that shows file version number, timestamp information, and digital signature details, including certificate chains. It also includes an option to check a file’s status on VirusTotal, a site that performs automated file scanning against over 40 antivirus engines, and an option to upload a file for scanning."
+
+*all windows executable are in C:\windows\system32 except explore.exe which is in c:\windows
+
+-used to check for usnigned files in c:\windows\system32
+-command sigcheck -u -e c:\windows\system32
+    -u "If VirusTotal check is enabled, show files that are unknown by VirusTotal or have non-zero detection, otherwise show only unsigned files."
+    -e "Scan executable images only (regardless of their extension)"
+
+if a match is found it warrants an investigation
+
+
+Streams
+
+"The NTFS file system provides applications the ability to create alternate data streams of information. By default, all data is stored in a file's main unnamed data stream, but by using the syntax 'file:stream', you are able to read and write to alternates." (official definition)
+
+Alternate Data Streams (ADS) is a file attribute specific to Windows NTFS (New Technology File System). Every file has at least one data stream ($DATA) and ADS allows files to contain more than one stream of data. Natively Window Explorer doesn't display ADS to the user. There are 3rd party executables that can be used to view this data, but Powershell gives you the ability to view ADS for files.
+
+Malware writers have used ADS to hide data in an endpoint, but not all its uses are malicious. When you download a file from the Internet unto an endpoint, there are identifiers written to ADS to identify that it was downloaded from the Internet.
+
+command streams C:\path\to\file -accepteula
+
+file will have a security attribute
+
+
+SDelete
+
+"SDelete is a command line utility that takes a number of options. In any given use, it allows you to delete one or more files and/or directories, or to cleanse the free space on a logical disk."
+
+As per the official documentation page, SDelete (Secure Delete) implemented the DOD 5220.22-M (Department of Defense clearing and sanitizing protocol). It is implemented in the follwoings way
+pass 1: writes a zero and verifies the write
+pass 2: writes a one and verifies the write
+pass 3: writes a random cahracter and verifies the write
+
+Source: https://www.lifewire.com/dod-5220-22-m-2625856
+
+SDelete has been used by adversaries and is associated with MITRE techniques T1485 (Data Destruction) and T1070.004 (Indicator Removal on Host: File Deletion). It's MITRE ID S0195.
+
+You can review this tool more in-depth by visiting its Sysinternals SDelete page. 
+
+Other tools fall under the File and Disk Utilities category. I encourage you to explore these tools at your own leisure.
+
+Link: https://docs.microsoft.com/en-us/sysinternals/downloads/file-and-disk-utilities 
+
+on the practical:
+1) go to cmd. go to the location of the files (streams and file.txt)
+2) run stream command: streams C:\>path\to\file.txt -accepteula
+3) it will show: ads.txt: $DATA
+4) to read the ads.txt use the command c:\> notepad .\file.txt:ads.txt  
+
+
+2)network utilities 
+
+TCPView
+
+"TCPView is a Windows program that will show you detailed listings of all TCP and UDP endpoints on your system, including the local and remote addresses and state of TCP connections. On Windows Server 2008, Vista, and XP, TCPView also reports the name of the process that owns the endpoint. TCPView provides a more informative and conveniently presented subset of the Netstat program that ships with Windows. The TCPView download includes Tcpvcon, a command-line version with the same functionality." (official definition)
+
+This is a good time to mention that Windows has a built-in utility that provides the same functionality. This tool is called Resource Monitor. There are many ways to open this tool. From the command line use resmon
+
+command c:\>tcpview -accepteula
+
+https://whois.domaintools.com/
+
+
+3)process utilities
+
+Autoruns
+
+"This utility, which has the most comprehensive knowledge of auto-starting locations of any startup monitor, shows you what programs are configured to run during system bootup or login, and when you start various built-in Windows applications like Internet Explorer, Explorer and media players. These programs and drivers include ones in your startup folder, Run, RunOnce, and other Registry keys. Autoruns reports Explorer shell extensions, toolbars, browser helper objects, Winlogon notifications, auto-start services, and much more. Autoruns goes way beyond other autostart utilities." (official definition)
+
+Note: This is a good tool to search for any malicious entries created in the local machine to establish Persistence
+
+command c:\>autoruns -accepteula
+
+ProcDump
+
+"ProcDump is a command-line utility whose primary purpose is monitoring an application for CPU spikes and generating crash dumps during a spike that an administrator or developer can use to determine the cause of the spike." (official definition)
+
+command c:\>procdump -accepteula
+
+Process Explorer 
+
+"The Process Explorer display consists of two sub-windows. The top window always shows a list of the currently active processes, including the names of their owning accounts, whereas the information displayed in the bottom window depends on the mode that Process Explorer is in: if it is in handle mode you'll see the handles that the process selected in the top window has opened; if Process Explorer is in DLL mode you'll see the DLLs and memory-mapped files that the process has loaded." (official definition)
+
+color coding
+purple - file may be packed
+red - process being stopped
+green - process freshly spawned
+blue - proces run by the same account that started the process
+dark blue- selected process
+pink- service (like svchost.exe)
+dark gray- suspended process
+
+
+Process Monitor
+
+"Process Monitor is an advanced monitoring tool for Windows that shows real-time file system, Registry and process/thread activity. It combines the features of two legacy Sysinternals utilities, Filemon and Regmon, and adds an extensive list of enhancements including rich and non-destructive filtering, comprehensive event properties such as session IDs and user names, reliable process information, full thread stacks with integrated symbol support for each operation, simultaneous logging to a file, and much more. Its uniquely powerful features will make Process Monitor a core utility in your system troubleshooting and malware hunting toolkit." (official definition)
+
+command C:\>procmon -accepteula
+
+*must use filters and must configure properly to be effective*
+
+PsExec
+
+"PsExec is a light-weight telnet-replacement that lets you execute processes on other systems, complete with full interactivity for console applications, without having to manually install client software. PsExec's most powerful uses include launching interactive command-prompts on remote systems and remote-enabling tools like IpConfig that otherwise do not have the ability to show information about remote systems.
+
+PsExec is another tool that is utilized by adversaries. This tool is associated with MITRE techniques T1570 (Lateral Tool Transfer), T1021.002 (Remote Services: SMB/Windows Admin Shares), and T1569.002 (System Services: Service Execution). It's MITRE ID is S0029.
+
+
+4)security utilites
+
+Sysmon
+
+"System Monitor (Sysmon) is a Windows system service and device driver that, once installed on a system, remains resident across system reboots to monitor and log system activity to the Windows event log. It provides detailed information about process creations, network connections, and changes to file creation time. By collecting the events it generates using Windows Event Collection or SIEM agents and subsequently analyzing them, you can identify malicious or anomalous activity and understand how intruders and malware operate on your network
+
+5) system information
+
+WinObj
+
+"WinObj is a 32-bit Windows NT program that uses the native Windows NT API (provided by NTDLL.DLL) to access and display information on the NT Object Manager's name space." (official definition)
+
+To showcase this tool, let's look into the concept of Session 0 and Session 1 that was mentioned in the Core Windows Processes room.
+
+Remember that Session 0 is the OS session and Session 1 is the User session.  Also recall that there will be at least 2 csrss.exe processes running, one for each session. Note Session 1 will be for the first user logged into the system.  
+
+6)misc
+
+BgInfo
+
+"It automatically displays relevant information about a Windows computer on the desktop's background, such as the computer name, IP address, service pack version, and more." (official definition)
+
+This is a handy utility if you manage multiple machines. This tool, or similar tools, are typically utilized on servers. When a user RDPs into a server, the system information is displayed on the wallpaper to provide quick information about the server, such as the server's name.
+
+RegJump
+
+"This little command-line applet takes a registry path and makes Regedit open to that path. It accepts root keys in standard (e.g. HKEY_LOCAL_MACHINE) and abbreviated form (e.g. HKLM)." (official definition)
+
+When navigating through the registry using the Registry Editor, one must manually drill down to the key you wish to inspect.
+There are multiple ways to query the Windows Registry without using the Registry Editor, such as via the command line (reg query) and PowerShell (Get-Item/Get-ItemProperty).
+
+Using Regjump will open the Registry Editor and automatically open the editor directly at the path, so one doesn't need to navigate it manually.
+
+command c:\>regjump path\to\file -accepteula
+
+
+Strings
+
+"Strings just scans the file you pass it for UNICODE (or ASCII) strings of a default length of 3 or more UNICODE (or ASCII) characters. Note that it works under Windows 95 as well." (official definition)
+
+This is the tool that was used on Day 21 of AoC2 to inspect a mysterious binary. 
+
+The example below strings is used to search within the ZoomIt binary for any string containing the word 'zoom'.
+
+PS c:\tools\sysint> strings .\ZoomIt.exe | findstr /i zoom*
+
+real world use
+    ProcExp = to inspect the agent process, its properties, and associated threads and handles.
+    ProcMon = to investigate if there were any indicators on why the agent was not operating as it should.
+    ProcDump = to create a dump of the agent process to send to the vendor for further analysis. 

@@ -1,0 +1,54 @@
+A)sysmon
+
+-persistent after isntallation
+-provides deatiled info regarding process, network, and changes to file creation
+-used in conjuction with a siem
+
+B)sysmon cofig
+
+-sysmon needs a config file to tell the binary how to analyze events
+-can be created or downlaoded 
+-when creating it excludes events that are usual/normal
+
+event 1: process creation (as thename implies)
+event 3 :network connection (remote activities)
+event 7: image loaded (looks for dll loaded by the process) it uses high sytem load
+event 8: create remote thread (monitors process injecting codes into other process)
+event 11: file created ( files created or overwritten at endpoint)
+event 12-14: registry event (changes/mod at the registry)
+event 15: file craete stream hash (files created in an alternate data stream)
+event 22: DNS event (DNS queries and events)
+
+C)isntalling sysmon
+
+-go to powershell
+Download-SysInternalsTools C:\Sysinternals
+
+D)starting sysmon
+-cmd as admin
+Sysmon.exe -accepteula -i sysmonconfig-export.xml
+
+F) challenge Filter
+-to know how many event ID 3 there is, manually go to the event viewer and filter by event ID
+- to know what time the first network event is use
+Get-WinEvent -Path .\file.extx -FilterXPath '*/System/EventID=3' -Oldest -Max Events 1 | fl -property *
+
+G) challenge metasploit
+-by default metasploit uses port 4444
+Get-WinEvent -Path <Path to Log> -FilterXPath '*/System/EventID=3 and */EventData/Data[@Name="DestinationPort"] and */EventData/Data=4444'
+-add | fl -property * to view details
+
+H) chllenge mimikatz
+-dumps LSASS 
+Get-WinEvent -Path <Path to Log> -FilterXPath '*/System/EventID=10 and */EventData/Data[@Name="TargetImage"] and */EventData/Data="C:\Windows\system32'lsass.exe"'
+
+I)challenge malware
+Get-WinEvent -Path <Path to Log> -FilterXPath '*/System/EventID=3 and */EventData/Data[@Name="DestinationPort"] and */EventData/Data=<Port>'
+
+J)challenge alternate data stream
+Get-WinEvent -Path <Path to Log> -FilterXPath '*/System/EventID=15'
+
+K) challenge thread creation
+Get-WinEvent -Path <Path to Log> -FilterXPath '*/System/EventID=8'
+
+**check the event viewer for available eventID

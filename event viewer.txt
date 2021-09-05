@@ -45,7 +45,7 @@ event logs
 
 commands wevtutil.exe /? (to get syntax)
 	wevtutil.exe qe /? ( to get help for the query-events)
-	wevtutil.exe el | /c /v "" ( to know how many log name are there)
+	wevtutil.exe el | find /c /v "" ( to know how many log name are there)
 	wevtutil qe Application /c:3 /rd:true /f:text ( query event, application, max number to read is 3, rd set to true most recent first, file type txt)
 
 3) Get-winevent

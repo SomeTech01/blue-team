@@ -46,7 +46,7 @@ event logs
 commands wevtutil.exe /? (to get syntax)
 	wevtutil.exe qe /? ( to get help for the query-events)
 	wevtutil.exe el | find /c /v "" ( to know how many log name are there)
-	wevtutil qe Application /c:3 /rd:true /f:text ( query event, application, max number to read is 3, rd set to true most recent first, file type txt)
+	wevtutil qe Application /c:3 /rd:true /f:text ( query event, application, max number to read is 3, rd set to true meaning most recent first, file type txt)
 
 3) Get-winevent
 -gets events from event logs and event tracing log files on local and remote computers
@@ -79,7 +79,7 @@ Get-WinEvent -LogName Application -FilterXPath '*/System/Provider[@Name="WLMS"] 
 
 to find a user named Sam with an Logon Event ID of 4720
 
-Get-WinEvent -LogName Security -FilterXpath '*/EventData/Data[@Name="TargetUserName"="Sam" and */System/EventID=4720' | fl
+Get-WinEvent -LogName Security -FilterXpath '*/EventData/Data[@Name="TargetUserName"="Sam" and */System/EventID="4720"' | fl
 
 5) Event ID's
 
@@ -87,23 +87,23 @@ https://static1.squarespace.com/static/552092d5e4b0661088167e5c/t/580595db9f7456
 
 6)practical
 
-a)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=400"
+a)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID="400"'
 
 to see when the powershell was downgraded. Sign of attack. first date is the first time the attack was conducted
 
-b)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=104" |fl -property *
+b)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID="104"' |fl -property *
 
 to see the Log Clear event and get its Event record ID, PC name etc.
 
-c)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=4104' -Oldest -MaxEvents 1 | format-list
+c)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID="4104"' -Oldest -MaxEvents 1 |fl -property *
 
 advised about event 4104. looking for encoded powershell payload
 
-d)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=104 and */EventData/Data[@Name="ScriptBlockText"]' |fl -property *
+d)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID="104" and */EventData/Data[@Name="ScriptBlockText"]' |fl -property *
 
 the execution process ID is the last one to show. if you put -Oldest it is the first one
 
-e)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID=4799" -Oldest -Max Events 1 |fl -property *
+e)Get-WinEvent -Path .\merged.evtx -FilterXPath '*/System/EventID="4799"' -Oldest -Max Events 1 |fl -property *
 
 Someone is enumerating Admin group. Google search for the eventID (4799). Syntax will say full detail with the first ever log show up to be anlyzed
 
